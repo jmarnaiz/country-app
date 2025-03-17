@@ -8,23 +8,30 @@ import { Country } from '../models/country.interface';
 
 const TAG = 'COUNTRY SERVICE';
 
+export enum SearchType {
+  Capital = 'capital',
+  Country = 'name',
+  Code = 'alpha',
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CountryService {
   private _http = inject(HttpClient);
 
-  public searchByCapital(query: string): Observable<Country[]> {
+  public searchBy(query: string, type: SearchType): Observable<Country[]> {
     return this._http
       .get<RESTCountry[]>(
-        `${environment.apiUrl}/capital/${query.toLocaleLowerCase()}`
+        `${environment.apiUrl}/${type}/${query.toLocaleLowerCase()}`
       )
       .pipe(
         map(CountryMapper.mapCountryItemsToCountryArray),
+        // delay(2000),
         catchError((err: HttpErrorResponse) => {
-          console.error(`Error in ${TAG}:`, err.error.message);
-          throw new Error(`No se encontró el país con la capital ${query}`);
-        }) // Se puede hacer así o con un return throwError(() => new Error(err.error.message))
+          console.error(`Error in ${TAG}:`, err);
+          throw new Error(`No se encontró el país ${query}`);
+        })
       );
   }
 }

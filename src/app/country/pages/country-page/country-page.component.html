@@ -1,1 +1,11 @@
-<p>country-page works!</p>
+@if (countryResource.error()) {
+
+<app-not-found />
+}
+
+<div [ngClass]="{ 'skeleton h-64 w-64': countryResource.isLoading() }">
+  @if( countryResource.hasValue()) {
+  <country-info [country]="countryResource.value()" />
+
+  }
+</div>

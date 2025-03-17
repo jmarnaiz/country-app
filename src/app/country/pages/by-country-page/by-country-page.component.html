@@ -1,6 +1,11 @@
 <country-search-input
   search_placeholder="Buscar por país"
-  (query)="onSearch($event)"
+  (query)="query.set($event)"
 />
 
-<country-list [countries]="[]" />
+<country-list
+  [countries]="countryResource.value() ?? []"
+  [errorMessage]="countryResource.error()"
+  [isEmpty]="!countryResource.value()?.length"
+  [isLoading]="countryResource.isLoading()"
+/>

@@ -30,7 +30,35 @@
           }}</span>
         </td>
         <td>
-          <a class="link-primary cursor-pointer">Más info</a>
+          <a
+            [routerLink]="['/country/by', country.code]"
+            class="link-primary cursor-pointer"
+            >Más info</a
+          >
+        </td>
+      </tr>
+      }
+      <!-- -->
+      @if (errorMessage()) {
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="alert alert-danger">{{ errorMessage() }}</div>
+        </td>
+      </tr>
+      }
+      <!-- -->
+      @if (!countries().length && !isLoading() && !errorMessage()) {
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="alert alert-danger">No se encontraron resultados</div>
+        </td>
+      </tr>
+      }
+      <!-- -->
+      @if (isLoading()) {
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="alert alert-info">Buscando países</div>
         </td>
       </tr>
       }

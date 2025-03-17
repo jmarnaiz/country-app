@@ -1,8 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { SearchInputComponent } from '../../components/search-input/search-input.component';
 import { CountryListComponent } from '../../components/country-list/country-list.component';
-import { CountryService } from '../../services/country.service';
-import { Country } from '../../models/country.interface';
+import { CountryService, SearchType } from '../../services/country.service';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-by-capital-page',
@@ -11,29 +12,50 @@ import { Country } from '../../models/country.interface';
 })
 export class ByCapitalPageComponent {
   private _countryService = inject(CountryService);
+  query = signal('');
 
-  // Manera "tradicional" de hacerlo:
-  isLoading = signal(false);
-  isError = signal<string | null>(null);
-  countries = signal<Country[]>([]);
-
-  onSearch(value: string) {
-    if (this.isLoading()) return;
-    this.isLoading.set(true);
-    this.isError.set(null);
-    this._countryService.searchByCapital(value).subscribe({
-      next: (countries) => {
-        this.isLoading.set(false);
-        this.countries.set(countries);
-      },
-      error: (errorMsg: string) => {
-        this.isLoading.set(false);
-        this.countries.set([]);
-        this.isError.set(errorMsg);
-      },
-    });
-  }
+  countryResource = rxResource({
+    request: () => ({ query: this.query() }),
+    loader: ({ request }) => {
+      if (!request.query) return of([]);
+      return this._countryService.searchBy(request.query, SearchType.Capital);
+    },
+  });
 }
+
+// resource solo trabaja con promesas, pero eso necesitamos
+// el firstValuefrom
+//   countryResource = resource({
+//     request: () => ({ query: this.query() }),
+//     loader: async ({ request }) => {
+//       if (!request.query) return [];
+//       return await firstValueFrom(
+//         this._countryService.searchByCapital(request.query)
+//       );
+//     },
+//   });
+// }
+// Manera "tradicional" de hacerlo:
+// isLoading = signal(false);
+// isError = signal<string | null>(null);
+// countries = signal<Country[]>([]);
+
+// onSearch(value: string) {
+//   if (this.isLoading()) return;
+//   this.isLoading.set(true);
+//   this.isError.set(null);
+//   this._countryService.searchByCapital(value).subscribe({
+//     next: (countries) => {
+//       this.isLoading.set(false);
+//       this.countries.set(countries);
+//     },
+//     error: (errorMsg: string) => {
+//       this.isLoading.set(false);
+//       this.countries.set([]);
+//       this.isError.set(errorMsg);
+//     },
+//   });
+// }
 
 // Esto da error porque el this hace referencia al objeto que llama a la función, en este caso al objeto que llama a la función subscribe,
 // que es un objeto de tipo Subscription, y no al objeto de tipo ByCapitalPageComponent.
