@@ -1,1 +1,21 @@
-<country-list [countries]="[]" />
+<ul class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
+  @for (region of regions; track region) {
+  <li>
+    <button
+      class="btn mr-2 btn-outline"
+      [class.btn-primary]="region === selectedRegion()"
+      (click)="selectedRegion.set(region)"
+    >
+      {{ region }}
+    </button>
+  </li>
+
+  }
+</ul>
+
+<country-list
+  [countries]="countryResource.value() ?? []"
+  [errorMessage]="countryResource.error()"
+  [isEmpty]="!countryResource.value()?.length"
+  [isLoading]="countryResource.isLoading()"
+/>
